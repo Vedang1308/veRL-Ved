@@ -11,6 +11,13 @@ set -euo pipefail
 NUM_GPUS="${1:-2}"
 MODEL_PATH="${2:-Qwen/Qwen2.5-1.5B}"
 
+# Shift off positional arguments so they aren't forwarded to Hydra
+if [ "$#" -ge 2 ]; then
+    shift 2
+elif [ "$#" -eq 1 ]; then
+    shift 1
+fi
+
 if [ -d "/scratch/$USER" ]; then
     BASE_DIR="/scratch/$USER"
 else
