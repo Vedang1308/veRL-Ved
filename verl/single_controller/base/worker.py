@@ -259,16 +259,15 @@ class Worker(WorkerHelper):
             # list of UUIDs. The ROCR env var is processed first which then reduces
             # the number of GPUs that HIP can select from.
             # https://github.com/pytorch/pytorch/pull/144026
-            # To avoid the complexity of this, we simply gives out error if both are set
-            # (Also to keep consistency with ray's practice with 2.45.0).
-            # Otherwise, we will set ROCR_VISIBLE_DEVICES to CUDA_VISIBLE_DEVICES
-            # and remove ROCR_VISIBLE_DEVICES.
+            # On NVIDIA clusters (like SLURM), ROCR_VISIBLE_DEVICES is often set spuriously.
+            # If CUDA_VISIBLE_DEVICES is already set, safely ignore/pop ROCR_VISIBLE_DEVICES.
             if cuda_val:
-                raise ValueError("Please don't set ROCR_VISIBLE_DEVICES when HIP/CUDA_VISIBLE_DEVICES is set.")
-
-            cuda_val = os.environ.pop("ROCR_VISIBLE_DEVICES")
-            os.environ["CUDA_VISIBLE_DEVICES"] = cuda_val
-            rocr_val = None
+                os.environ.pop("ROCR_VISIBLE_DEVICES", None)
+                rocr_val = None
+            else:
+                cuda_val = os.environ.pop("ROCR_VISIBLE_DEVICES")
+                os.environ["CUDA_VISIBLE_DEVICES"] = cuda_val
+                rocr_val = None
 
         if is_ray_noset_visible_devices:
             # NOTE: Ray will automatically set the *_VISIBLE_DEVICES

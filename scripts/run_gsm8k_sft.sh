@@ -32,10 +32,14 @@ LR="${LR:-2e-5}"
 PROJECT_NAME="${PROJECT_NAME:-gsm8k-sft}"
 EXPERIMENT_NAME="${EXPERIMENT_NAME:-qwen2_5_1_5b_sft}"
 
-# 2. Redirect Cache Away From Home Quota
+# 2. Redirect Cache Away From Home Quota & Clean GPU Environment
 export HF_HOME="${BASE_DIR}/hf_cache"
 export TMPDIR="${BASE_DIR}/tmp"
 mkdir -p "${HF_HOME}" "${TMPDIR}" "${SAVE_PATH}"
+
+# Clear AMD ROCm variables that SLURM sets on heterogeneous clusters
+unset ROCR_VISIBLE_DEVICES || true
+unset HIP_VISIBLE_DEVICES || true
 
 # Logger: Use wandb if API key is present, otherwise console only
 if [ -n "${WANDB_API_KEY:-}" ]; then
