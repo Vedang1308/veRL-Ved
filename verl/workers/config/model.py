@@ -182,7 +182,14 @@ class HFModelConfig(BaseConfig):
         )
 
         # construct hf_config
-        attn_implementation = self.override_config.get("attn_implementation", "flash_attention_2")
+        attn_implementation = self.override_config.get("attn_implementation", None)
+        if attn_implementation is None:
+            try:
+                from transformers.utils import is_flash_attn_2_available
+                import flash_attn  # noqa: F401
+                attn_implementation = "flash_attention_2" if is_flash_attn_2_available() else "sdpa"
+            except Exception:
+                attn_implementation = "sdpa"
         try:
             self.hf_config = AutoConfig.from_pretrained(
                 self.local_hf_config_path,

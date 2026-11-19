@@ -80,6 +80,7 @@ torchrun --standalone --nnodes=1 --nproc_per_node="${NUM_GPUS}" \
     engine=fsdp \
     model.path="${MODEL_PATH}" \
     model.use_remove_padding=true \
+    +model.override_config.attn_implementation=sdpa \
     checkpoint.save_contents='["model","optimizer","extra","hf_model"]' \
     trainer.default_local_dir="${SAVE_PATH}" \
     trainer.project_name="${PROJECT_NAME}" \
