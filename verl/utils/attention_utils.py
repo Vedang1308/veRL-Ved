@@ -31,7 +31,7 @@ def _get_attention_functions() -> tuple[Callable, Callable, Callable, Callable]:
     if use_flash_attn:
         try:
             from flash_attn.bert_padding import index_first_axis, pad_input, rearrange, unpad_input
-        except ImportError:
+        except (ImportError, OSError):
             use_flash_attn = False
 
     if not use_flash_attn:

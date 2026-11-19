@@ -43,11 +43,14 @@ logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
 
 
 if is_flash_attn_2_available():
-    from flash_attn import flash_attn_func, flash_attn_varlen_func
+    try:
+        from flash_attn import flash_attn_func, flash_attn_varlen_func
 
-    _flash_supports_window_size = "window_size" in inspect.signature(flash_attn_func).parameters
-    _flash_supports_deterministic = "deterministic" in inspect.signature(flash_attn_func).parameters
-    _flash_use_top_left_mask = not is_flash_attn_greater_or_equal_2_10()
+        _flash_supports_window_size = "window_size" in inspect.signature(flash_attn_func).parameters
+        _flash_supports_deterministic = "deterministic" in inspect.signature(flash_attn_func).parameters
+        _flash_use_top_left_mask = not is_flash_attn_greater_or_equal_2_10()
+    except (ImportError, OSError):
+        pass
 
 if is_npu_available:
     from transformers.integrations.npu_flash_attention import npu_flash_attn_func as flash_attn_func
